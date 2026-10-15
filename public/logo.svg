@@ -1,0 +1,311 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="320"
+     height="64"
+     viewBox="0 0 320 64"
+     fill="none"
+     id="PlacifyVantaRingsLogo">
+
+  <defs>
+    <!-- Soft Glow Filter for Rings -->
+    <filter id="vantaRingGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Core Intense Flare -->
+    <filter id="vantaCoreFlare" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Text Depth Shadow -->
+    <filter id="vantaTextDepth" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+
+    <!-- 3D Vanta Rings Gradient 1: Outer Rainbow (Magenta -> Violet -> Cyan -> Emerald) -->
+    <linearGradient id="vantaRingOuterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF007A" />
+      <stop offset="28%" stop-color="#A855F7" />
+      <stop offset="60%" stop-color="#00F0FF" />
+      <stop offset="100%" stop-color="#00FF88" />
+    </linearGradient>
+
+    <!-- 3D Vanta Rings Gradient 2: Middle Orbit (Orange -> Gold -> Yellow -> Hot Pink) -->
+    <linearGradient id="vantaRingMidGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B00" />
+      <stop offset="35%" stop-color="#FACC15" />
+      <stop offset="70%" stop-color="#FF007A" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+
+    <!-- 3D Vanta Rings Gradient 3: Inner Fast Ring (Electric Cyan -> Royal Blue -> Violet) -->
+    <linearGradient id="vantaRingInnerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF" />
+      <stop offset="50%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+
+    <!-- 3D Vanta Rings Gradient 4: Core Swirl (Pure White -> Electric Yellow -> Cyan) -->
+    <radialGradient id="vantaRingCoreGrad" cx="45%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="35%" stop-color="#FDE047" />
+      <stop offset="70%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </radialGradient>
+
+    <!-- Stylized "P" Center Extrusion Gradient -->
+    <linearGradient id="vantaStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F0FF" />
+      <stop offset="45%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+
+    <!-- Plac Wordmark Titanium Gradient (Dark Mode) -->
+    <linearGradient id="vantaPlacGradDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#E2E8F0" />
+      <stop offset="100%" stop-color="#94A3B8" />
+    </linearGradient>
+
+    <!-- ify Rainbow Spectrum Wordmark Gradient -->
+    <linearGradient id="vantaIfyRainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="25%" stop-color="#00F0FF" />
+      <stop offset="50%" stop-color="#00FF88" />
+      <stop offset="75%" stop-color="#FACC15" />
+      <stop offset="100%" stop-color="#FF007A" />
+    </linearGradient>
+
+    <!-- Capsule Badge Gradient -->
+    <linearGradient id="vantaBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF007A" />
+      <stop offset="35%" stop-color="#A855F7" />
+      <stop offset="70%" stop-color="#00F0FF" />
+      <stop offset="100%" stop-color="#FACC15" />
+    </linearGradient>
+  </defs>
+
+  <style>
+    @media (prefers-color-scheme: light) {
+      .plac-brand-text {
+        fill: #0F172A !important;
+      }
+      .sub-brand-text {
+        fill: #475569 !important;
+      }
+      .ring-halo-bg {
+        opacity: 0.18 !important;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      .plac-brand-text {
+        fill: url(#vantaPlacGradDark) !important;
+      }
+      .sub-brand-text {
+        fill: #94A3B8 !important;
+      }
+      .ring-halo-bg {
+        opacity: 0.35 !important;
+      }
+    }
+  </style>
+
+  <!-- ======================================================== -->
+  <!-- 1. 3D CONCENTRIC VANTA RINGS EMBLEM                      -->
+  <!-- ======================================================== -->
+  <g id="VantaRingsEmblem" transform="translate(6, 4)">
+
+    <!-- Ambient Orbital Shadow & Soft Halo -->
+    <ellipse cx="28" cy="46" rx="24" ry="4.5" fill="#8B5CF6" class="ring-halo-bg" opacity="0.35" filter="url(#vantaRingGlow)" />
+    <ellipse cx="28" cy="46" rx="16" ry="3" fill="#00F0FF" class="ring-halo-bg" opacity="0.4" filter="url(#vantaRingGlow)" />
+
+    <!-- Isometric Tilted Rings System: Center is at (28, 26) -->
+    <g transform="translate(28, 26) rotate(-22)">
+
+      <!-- LAYER 1: OUTERMOST 3D ORBITAL RING (Large sweep, perspective depth) -->
+      <!-- Back arc (shadowed) -->
+      <ellipse cx="0" cy="0" rx="27" ry="11.5" stroke="#312E81" stroke-width="1.8" stroke-dasharray="14 42" stroke-linecap="round" fill="none" opacity="0.6" />
+      
+      <!-- Front arc (glowing vibrant neon rainbow) -->
+      <path
+        d="M -26.5,2.5 C -22,9.5 -3,12 14,10 C 23,8.5 27,4 26.5,-1"
+        stroke="url(#vantaRingOuterGrad)"
+        stroke-width="2.6"
+        stroke-linecap="round"
+        fill="none"
+        filter="url(#vantaRingGlow)"
+      />
+      <!-- Orbit Satellite Glow Node 1 -->
+      <circle cx="26.5" cy="-1" r="1.8" fill="#00FF88" />
+      <circle cx="-26.5" cy="2.5" r="1.6" fill="#FF007A" />
+
+      <!-- LAYER 2: MIDDLE CONCENTRIC 3D RING (Thick vibrant multi-chromatic band) -->
+      <!-- Back edge -->
+      <ellipse cx="0" cy="0" rx="21" ry="8.8" stroke="#1E1B4B" stroke-width="2" stroke-dasharray="20 30" fill="none" opacity="0.5" />
+      
+      <!-- Front prominent sweeping arc -->
+      <path
+        d="M -20.5,1.5 C -17,7 -2,9 11,7.5 C 18,6.5 21,3 20.5,-1.5"
+        stroke="url(#vantaRingMidGrad)"
+        stroke-width="3"
+        stroke-linecap="round"
+        fill="none"
+        filter="url(#vantaRingGlow)"
+      />
+      <!-- High-intensity Specular Core on Middle Arc -->
+      <path
+        d="M -14,5.2 C -5,7.8 6,7 13,5"
+        stroke="#FFFFFF"
+        stroke-width="1"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.9"
+      />
+
+      <!-- LAYER 3: INNER FAST ORBITAL RING (Cyan to Blue to Purple) -->
+      <!-- Full inner perspective loop -->
+      <ellipse
+        cx="0"
+        cy="0"
+        rx="14.5"
+        ry="6.2"
+        stroke="url(#vantaRingInnerGrad)"
+        stroke-width="2.4"
+        stroke-dasharray="40 18"
+        stroke-linecap="round"
+        fill="none"
+        filter="url(#vantaRingGlow)"
+      />
+
+      <!-- LAYER 4: TIGHT VORTEX RING (Hot Lemon-Gold & Magenta) -->
+      <ellipse
+        cx="0"
+        cy="0"
+        rx="9"
+        ry="3.8"
+        stroke="url(#vantaRingMidGrad)"
+        stroke-width="2"
+        stroke-dasharray="24 10"
+        stroke-linecap="round"
+        fill="none"
+      />
+
+      <!-- LAYER 5: CENTRAL LUMINOUS NUCLEUS & 3D "P" MONOGRAM EMBED -->
+      <!-- Glowing Core Center -->
+      <circle cx="0" cy="0" r="4.2" fill="url(#vantaRingCoreGrad)" filter="url(#vantaCoreFlare)" />
+      
+      <!-- 4-Point Prismatic Diamond Spark -->
+      <polygon points="0,-4.5 1.2,-0.5 4.5,0 1.2,0.5 0,4.5 -1.2,0.5 -4.5,0 -1.2,-0.5" fill="#FFFFFF" />
+      <circle cx="0" cy="0" r="1.2" fill="#00F0FF" />
+
+      <!-- Sweeping 3D Orbital Ribbon crossing through the core -->
+      <path
+        d="M -11,8 C -4,11 6,9 12,3 C 14,-1 12,-5 8,-6.5"
+        stroke="#FFFFFF"
+        stroke-width="0.8"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.75"
+      />
+    </g>
+
+    <!-- Stylized 3D Isometric "P" Architectural Anchor -->
+    <g transform="translate(14, 11)" opacity="0.95">
+      <!-- P Stem Left Facet -->
+      <path d="M 0,22 L 5,25 L 5,3 L 0,0 Z" fill="url(#vantaStemGrad)" />
+      <!-- P Stem Top Cap -->
+      <polygon points="0,0 5,3 10,0 5,-3" fill="#00F0FF" />
+      <!-- P Loop Outer 3D Curve -->
+      <path
+        d="M 5,3 C 12,3 17,6 17,11 C 17,16 12,19 5,19 L 5,14 C 9,14 12,12.5 12,11 C 12,9.5 9,8 5,8 Z"
+        fill="url(#vantaRingMidGrad)"
+      />
+      <!-- Specular Highlight Edge -->
+      <line x1="5" y1="3" x2="5" y2="25" stroke="#FFFFFF" stroke-width="0.8" opacity="0.6" />
+    </g>
+
+  </g>
+
+
+  <!-- ======================================================== -->
+  <!-- 2. "PLACIFY" WORDMARK & 3D VANTA RINGS TYPOGRAPHY       -->
+  <!-- ======================================================== -->
+  <g id="VantaRingsWordmark" transform="translate(74, 2)" filter="url(#vantaTextDepth)">
+
+    <!-- Main Wordmark -->
+    <text
+      x="0"
+      y="33"
+      font-family="system-ui, -apple-system, 'SF Pro Display', 'Space Grotesk', Inter, sans-serif"
+      font-size="30"
+      font-weight="900"
+      letter-spacing="-0.8"
+    >
+      <!-- "Plac" in Titanium / Obsidian Adaptive -->
+      <tspan class="plac-brand-text" fill="url(#vantaPlacGradDark)">Plac</tspan>
+      <!-- "ify" in Vibrant Rainbow Spectrum Gradient -->
+      <tspan fill="url(#vantaIfyRainbow)">ify</tspan>
+    </text>
+
+    <!-- 3D Orbit Ring Accent slicing across the letter 'i' -->
+    <g transform="translate(68, 12)">
+      <!-- Tiny concentric ring over 'i' dot -->
+      <ellipse cx="0" cy="0" rx="3.5" ry="1.4" stroke="url(#vantaRingOuterGrad)" stroke-width="0.9" fill="none" transform="rotate(-20)" />
+      <!-- Radiant Diamond Sparkle -->
+      <polygon points="0,-3 1,0 0,3 -1,0" fill="#00F0FF" />
+      <polygon points="-3,0 0,1 3,0 0,-1" fill="#FF007A" />
+      <circle cx="0" cy="0" r="0.8" fill="#FFFFFF" />
+    </g>
+
+    <!-- FUTURISTIC CAPSULE BADGE: [ ✦ AI ] -->
+    <g transform="translate(132, 14)">
+      <!-- Outer Rainbow Border Capsule -->
+      <rect x="0" y="0" width="48" height="20" rx="10" fill="url(#vantaBadgeGrad)" />
+      <!-- Inset Dark / High-Contrast Base -->
+      <rect x="1.2" y="1.2" width="45.6" height="17.6" rx="8.8" fill="#0C0915" />
+      <!-- Subtle Glass Inset Highlight -->
+      <rect x="2" y="2" width="44" height="7" rx="7" fill="#FFFFFF" opacity="0.15" />
+      
+      <!-- Badge Content -->
+      <text
+        x="24"
+        y="13.5"
+        fill="#FFFFFF"
+        font-family="system-ui, -apple-system, sans-serif"
+        font-size="9"
+        font-weight="900"
+        letter-spacing="0.6"
+        text-anchor="middle"
+      >
+        ✦ AI
+      </text>
+    </g>
+
+    <!-- Subtitle: Next-Gen Neural Interview Engine -->
+    <text
+      x="1.5"
+      y="47"
+      class="sub-brand-text"
+      fill="#94A3B8"
+      font-family="system-ui, -apple-system, 'Space Grotesk', sans-serif"
+      font-size="7.5"
+      font-weight="800"
+      letter-spacing="3.2"
+    >
+      AI INTERVIEW INTELLIGENCE
+    </text>
+
+    <!-- Vanta 3D Rings Spectrum Dots -->
+    <circle cx="188" cy="44.5" r="1.3" fill="#FF007A" />
+    <circle cx="192.5" cy="44.5" r="1.3" fill="#A855F7" />
+    <circle cx="197" cy="44.5" r="1.3" fill="#00F0FF" />
+    <circle cx="201.5" cy="44.5" r="1.3" fill="#00FF88" />
+    <circle cx="206" cy="44.5" r="1.3" fill="#FACC15" />
+    <circle cx="210.5" cy="44.5" r="1.3" fill="#FF6B00" />
+  </g>
+
+</svg>
