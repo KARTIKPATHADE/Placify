@@ -31,6 +31,7 @@ import {
 import { toast } from "sonner";
 import ExamMarkdownRenderer from "@/components/ExamMarkdownRenderer";
 import LiveAssistantVoiceCallModal from "./_components/LiveAssistantVoiceCallModal";
+import { speakPlacifyVoice, stopPlacifyVoice } from "@/utils/placifyVoice";
 
 export default function AIAssistantPage() {
   const capabilityModes = [
@@ -268,6 +269,13 @@ Under NIST SP 800-207 Zero Trust Architecture:
     return () => clearTimeout(timer);
   }, [viewMode]);
 
+  // Clean up speech synthesis on component unmount
+  useEffect(() => {
+    return () => {
+      stopPlacifyVoice();
+    };
+  }, []);
+
   const handleCopyFullSheet = () => {
     const text = messages
       .filter((m) => m.role === "assistant")
@@ -333,10 +341,8 @@ Under NIST SP 800-207 Zero Trust Architecture:
     setIsLoading(true);
 
     // Stop ongoing speech if any
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      setSpeakingId(null);
-    }
+    stopPlacifyVoice();
+    setSpeakingId(null);
 
     try {
       // Collect past answer history for strict anti-repetition constraint
@@ -411,31 +417,15 @@ Under NIST SP 800-207 Zero Trust Architecture:
   };
 
   const handleToggleSpeak = (id, text) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      toast.error("Speech synthesis not supported in this browser.");
-      return;
-    }
-
     if (speakingId === id) {
-      window.speechSynthesis.cancel();
+      stopPlacifyVoice();
       setSpeakingId(null);
     } else {
-      window.speechSynthesis.cancel();
-      // Clean markdown tags for spoken audio
-      const cleanText = text
-        .replace(/[#*_`~>-]/g, " ")
-        .replace(/\[.*?\]\(.*?\)/g, " ")
-        .replace(/\s+/g, " ");
-
-      const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 1000));
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-
-      utterance.onend = () => setSpeakingId(null);
-      utterance.onerror = () => setSpeakingId(null);
-
-      window.speechSynthesis.speak(utterance);
-      setSpeakingId(id);
+      speakPlacifyVoice(text, {
+        onStart: () => setSpeakingId(id),
+        onEnd: () => setSpeakingId(null),
+        onError: () => setSpeakingId(null),
+      });
     }
   };
 

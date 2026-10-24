@@ -1,7 +1,8 @@
 "use client"
 
-import { Lightbulb, Volume2, Sparkles, Terminal, Phone } from 'lucide-react'
-import React, { useState } from 'react'
+import { Lightbulb, Volume2, VolumeX, Sparkles, Terminal, Phone } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { speakPlacifyVoice, stopPlacifyVoice } from '@/utils/placifyVoice'
 
 function QuestionsSection({
   mockInterviewQuestion = [],
@@ -10,6 +11,15 @@ function QuestionsSection({
   onOpenLiveCall
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // Stop previous question audio when switching questions or unmounting
+  useEffect(() => {
+    stopPlacifyVoice();
+    setIsPlaying(false);
+    return () => {
+      stopPlacifyVoice();
+    };
+  }, [activeQuestionIndex]);
 
   // Safely extract questions array whether passed as an Array or wrapped in an Object
   const questionsList = Array.isArray(mockInterviewQuestion)
@@ -23,25 +33,17 @@ function QuestionsSection({
 
   const textToSpeech = (text) => {
     if (!text) return;
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-
-      const speech = new SpeechSynthesisUtterance(text);
-      setIsPlaying(true);
-
-      speech.onend = () => {
-        setIsPlaying(false);
-        window.speechSynthesis.cancel();
-      };
-
-      speech.onerror = () => {
-        setIsPlaying(false);
-      };
-
-      window.speechSynthesis.speak(speech);
-    } else {
-      alert('Sorry, your browser does not support text to speech');
+    if (isPlaying) {
+      stopPlacifyVoice();
+      setIsPlaying(false);
+      return;
     }
+
+    speakPlacifyVoice(text, {
+      onStart: () => setIsPlaying(true),
+      onEnd: () => setIsPlaying(false),
+      onError: () => setIsPlaying(false),
+    });
   };
 
   if (!questionsList || questionsList.length === 0) {
@@ -115,13 +117,24 @@ function QuestionsSection({
 
             <button
               onClick={() => textToSpeech(currentQ?.question)}
-              className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer ${
-                isPlaying ? 'animate-pulse shadow-md' : 'shadow-2xs'
+              className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-full border transition-all cursor-pointer ${
+                isPlaying
+                  ? 'border-rose-400 bg-rose-500/10 text-rose-600 dark:text-rose-400 animate-pulse shadow-md'
+                  : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 shadow-2xs'
               }`}
-              title="Read Question Aloud"
+              title={isPlaying ? "Stop Question Audio" : "Read Question Aloud with Unified AI Voice"}
             >
-              <Volume2 className="w-3.5 h-3.5 text-black dark:text-white" />
-              <span>{isPlaying ? 'Synthesizing...' : 'Play Audio'}</span>
+              {isPlaying ? (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Stop Audio</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-black dark:text-white" />
+                  <span>Play Audio</span>
+                </>
+              )}
             </button>
           </div>
         </div>

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { speakPlacifyVoice, stopPlacifyVoice } from "@/utils/placifyVoice";
 
 export default function LiveAssistantVoiceCallModal({
   isOpen,
@@ -164,77 +165,39 @@ export default function LiveAssistantVoiceCallModal({
     }
   };
 
-  // 3. TEXT-TO-SPEECH WITH WATCHDOG
+  // 3. TEXT-TO-SPEECH (UNIFIED PLACIFY AI VOICE)
   const speakText = (text, onFinish) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       if (onFinish) onFinish();
       return;
     }
 
-    window.speechSynthesis.cancel();
+    stopPlacifyVoice();
     if (isAiMutedRef.current) {
       if (onFinish) onFinish();
       return;
-    }
-
-    // Clean text for natural verbal synthesis
-    const cleanSpoken = text
-      .replace(/[#*_`~>-]/g, " ")
-      .replace(/\[.*?\]\(.*?\)/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    // Spoken audio utterance (limit to first 60 words for concise conversational voice)
-    const words = cleanSpoken.split(/\s+/);
-    const voiceSnippet = words.slice(0, 65).join(" ") + (words.length > 65 ? "..." : "");
-
-    const utterance = new SpeechSynthesisUtterance(voiceSnippet);
-    utterance.rate = 1.02;
-    utterance.pitch = 1.0;
-    utterance.lang = "en-US";
-
-    const voices = window.speechSynthesis.getVoices();
-    const naturalVoice = voices.find(
-      (v) =>
-        v.lang.startsWith("en") &&
-        (v.name.includes("Google") ||
-          v.name.includes("Natural") ||
-          v.name.includes("Samantha") ||
-          v.name.includes("Daniel") ||
-          v.name.includes("Guy"))
-    );
-    if (naturalVoice) utterance.voice = naturalVoice;
-
-    speechUtteranceRef.current = utterance;
-    if (typeof window !== "undefined") {
-      window._placifyAssistantVoice = utterance;
     }
 
     let hasEnded = false;
     const finish = () => {
       if (hasEnded) return;
       hasEnded = true;
-      if (watchdogTimerRef.current) clearTimeout(watchdogTimerRef.current);
       speechUtteranceRef.current = null;
       if (onFinish) onFinish();
     };
 
-    const maxDurationMs = Math.max(3500, voiceSnippet.split(/\s+/).length * 380 + 3000);
-    watchdogTimerRef.current = setTimeout(finish, maxDurationMs);
+    const utterance = speakPlacifyVoice(text, {
+      maxWords: 65,
+      onStart: () => {
+        setTurnState("ai_speaking");
+        turnStateRef.current = "ai_speaking";
+        stopListening();
+      },
+      onEnd: () => finish(),
+      onError: () => finish()
+    });
 
-    utterance.onstart = () => {
-      setTurnState("ai_speaking");
-      turnStateRef.current = "ai_speaking";
-      stopListening();
-    };
-
-    utterance.onend = () => finish();
-    utterance.onerror = () => finish();
-
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
-    window.speechSynthesis.speak(utterance);
+    speechUtteranceRef.current = utterance;
   };
 
   // 4. SPEECH RECOGNITION
@@ -431,9 +394,7 @@ export default function LiveAssistantVoiceCallModal({
     stopListening();
     tearDownMicStream();
     if (watchdogTimerRef.current) clearTimeout(watchdogTimerRef.current);
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopPlacifyVoice();
   };
 
   const handleEndCall = () => {
@@ -518,9 +479,7 @@ export default function LiveAssistantVoiceCallModal({
 
   const handleOrbClick = () => {
     if (turnState === "ai_speaking") {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopPlacifyVoice();
       if (watchdogTimerRef.current) clearTimeout(watchdogTimerRef.current);
       toast.info("AI Interrupted — Listening to you!");
       startListening();
@@ -822,9 +781,7 @@ export default function LiveAssistantVoiceCallModal({
               } else {
                 setIsAiMuted(true);
                 isAiMutedRef.current = true;
-                if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                  window.speechSynthesis.cancel();
-                }
+                stopPlacifyVoice();
                 toast.info("AI Voice muted");
               }
             }}

@@ -26,6 +26,7 @@ import { db } from "@/utils/db";
 import { UserAnswer } from "@/utils/schema";
 import moment from "moment";
 import { useUser } from "@clerk/nextjs";
+import { speakPlacifyVoice, stopPlacifyVoice } from "@/utils/placifyVoice";
 
 export default function LiveAIVoiceCallModal({
   isOpen,
@@ -192,82 +193,38 @@ export default function LiveAIVoiceCallModal({
     }
   };
 
-  // 3. TEXT-TO-SPEECH (AI SPEAKS ALOUD) WITH WATCHDOG & HIGH-SIGNAL VOICES
+  // 3. TEXT-TO-SPEECH (UNIFIED PLACIFY AI VOICE)
   const speakText = (text, onFinish) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       if (onFinish) onFinish();
       return;
     }
 
-    window.speechSynthesis.cancel();
+    stopPlacifyVoice();
     if (isAiMutedRef.current) {
       if (onFinish) onFinish();
       return;
-    }
-
-    // Clean markdown tags and code wrappers for fluid human speech
-    const cleanSpoken = text
-      .replace(/[#*_`~>-]/g, " ")
-      .replace(/\[.*?\]\(.*?\)/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    const utterance = new SpeechSynthesisUtterance(cleanSpoken);
-    utterance.rate = 1.02; // Natural executive cadence
-    utterance.pitch = 1.0;
-    utterance.lang = "en-US";
-
-    // Attempt to pick a high quality natural English voice
-    const voices = window.speechSynthesis.getVoices();
-    const naturalVoice = voices.find(
-      (v) =>
-        v.lang.startsWith("en") &&
-        (v.name.includes("Google") ||
-          v.name.includes("Natural") ||
-          v.name.includes("Samantha") ||
-          v.name.includes("Daniel") ||
-          v.name.includes("Guy"))
-    );
-    if (naturalVoice) utterance.voice = naturalVoice;
-
-    speechUtteranceRef.current = utterance;
-    // Pin to global window to avoid Chromium garbage collection bug during long speech
-    if (typeof window !== "undefined") {
-      window._placifyVoiceUtterance = utterance;
     }
 
     let hasEnded = false;
     const finish = () => {
       if (hasEnded) return;
       hasEnded = true;
-      if (watchdogTimerRef.current) clearTimeout(watchdogTimerRef.current);
       speechUtteranceRef.current = null;
       if (onFinish) onFinish();
     };
 
-    // Watchdog timer: calculates safe duration from word count + 3s buffer
-    const wordCount = cleanSpoken.split(/\s+/).length;
-    const maxDurationMs = Math.max(3500, wordCount * 380 + 3000);
-    watchdogTimerRef.current = setTimeout(finish, maxDurationMs);
+    const utterance = speakPlacifyVoice(text, {
+      onStart: () => {
+        setTurnState("ai_speaking");
+        turnStateRef.current = "ai_speaking";
+        stopListening();
+      },
+      onEnd: () => finish(),
+      onError: () => finish(),
+    });
 
-    utterance.onstart = () => {
-      setTurnState("ai_speaking");
-      turnStateRef.current = "ai_speaking";
-      stopListening();
-    };
-
-    utterance.onend = () => {
-      finish();
-    };
-
-    utterance.onerror = () => {
-      finish();
-    };
-
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
-    window.speechSynthesis.speak(utterance);
+    speechUtteranceRef.current = utterance;
   };
 
   // 4. SPEECH RECOGNITION (UNBROKEN CONTINUOUS LISTENING WITH LIVE INTERIM UPDATES)
@@ -463,9 +420,7 @@ export default function LiveAIVoiceCallModal({
     stopListening();
     tearDownMicStream();
     if (watchdogTimerRef.current) clearTimeout(watchdogTimerRef.current);
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopPlacifyVoice();
   };
 
   const handleEndCall = () => {
@@ -664,9 +619,7 @@ export default function LiveAIVoiceCallModal({
   const handleOrbClick = () => {
     if (turnState === "ai_speaking") {
       // Barge-in: Interrupt AI speaking and switch directly to listening
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopPlacifyVoice();
       if (watchdogTimerRef.current) clearTimeout(watchdogTimerRef.current);
       toast.info("AI Interrupted — Listening to you!");
       startListening();
@@ -1006,9 +959,7 @@ export default function LiveAIVoiceCallModal({
               } else {
                 setIsAiMuted(true);
                 isAiMutedRef.current = true;
-                if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                  window.speechSynthesis.cancel();
-                }
+                stopPlacifyVoice();
                 toast.info("AI Voice muted");
               }
             }}

@@ -1,15 +1,21 @@
 "use client"
-
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Volume2, Sparkles, Search, Layers, PlayCircle, Bot, Code, Server, Users, ArrowUpRight } from 'lucide-react'
+import { Volume2, VolumeX, Sparkles, Search, Layers, PlayCircle, Bot, Code, Server, Users, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { speakPlacifyVoice, stopPlacifyVoice } from '@/utils/placifyVoice'
 
 export default function QuestionsLibraryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [playingId, setPlayingId] = useState(null)
+
+  useEffect(() => {
+    return () => {
+      stopPlacifyVoice()
+    }
+  }, [])
 
   const categories = ['All', 'Frontend', 'Backend', 'System Design', 'Behavioral']
 
@@ -81,23 +87,17 @@ export default function QuestionsLibraryPage() {
   ]
 
   const playSpeech = (id, text) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      if (playingId === id) {
-        setPlayingId(null)
-        return
-      }
-      const utterance = new SpeechSynthesisUtterance(text)
-      setPlayingId(id)
-      utterance.onend = () => {
-        setPlayingId(null)
-        window.speechSynthesis.cancel()
-      }
-      utterance.onerror = () => setPlayingId(null)
-      window.speechSynthesis.speak(utterance)
-    } else {
-      alert('Speech synthesis is not supported on this browser.')
+    if (playingId === id) {
+      stopPlacifyVoice()
+      setPlayingId(null)
+      return
     }
+
+    speakPlacifyVoice(text, {
+      onStart: () => setPlayingId(id),
+      onEnd: () => setPlayingId(null),
+      onError: () => setPlayingId(null)
+    })
   }
 
   const filteredQuestions = sampleQuestions.filter((q) => {
@@ -200,14 +200,24 @@ export default function QuestionsLibraryPage() {
                   size="xs"
                   variant="outline"
                   onClick={() => playSpeech(q.id, q.question)}
-                  className={`rounded-xl text-xs font-semibold border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
+                  className={`rounded-xl text-xs font-semibold border transition-all ${
                     playingId === q.id
-                      ? 'animate-pulse'
-                      : ''
+                      ? 'border-rose-400 bg-rose-500/10 text-rose-600 dark:text-rose-400 animate-pulse'
+                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                   }`}
+                  title={playingId === q.id ? "Stop Audio" : "Read Question with Unified AI Voice"}
                 >
-                  <Volume2 className="w-3.5 h-3.5 mr-1 text-zinc-900 dark:text-zinc-100" />
-                  {playingId === q.id ? 'Playing...' : 'Audio'}
+                  {playingId === q.id ? (
+                    <>
+                      <VolumeX className="w-3.5 h-3.5 mr-1 text-rose-500" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5 mr-1 text-zinc-900 dark:text-zinc-100" />
+                      Audio
+                    </>
+                  )}
                 </Button>
 
                 <Link href="/dashboard">
